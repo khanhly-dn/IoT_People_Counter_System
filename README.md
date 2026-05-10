@@ -193,7 +193,7 @@ t  →  Bật/tắt chế độ chặn
 <p align="center">
   <img width="700" alt="Demo Web Dashboard" src="https://github.com/khanhly-dn/IoT_People_Counter_System/blob/main/DEMO.jpg?raw=true" />
 </p>
-
+🎬 **Video hoạt động:** *    *
 ---
 
 ## 🚀 Hướng phát triển
