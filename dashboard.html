@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Counter AIoT Dashboard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+
+  header{
+    background:#161b22;border-bottom:1px solid #30363d;
+    padding:14px 28px;display:flex;align-items:center;gap:12px;
+  }
+  header h1{font-size:1.1rem;color:#58a6ff;letter-spacing:1px}
+  .dot{width:9px;height:9px;border-radius:50%;background:#3fb950;
+       box-shadow:0 0 8px #3fb950;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700}
+  .b-green {background:#1a3626;color:#3fb950;border:1px solid #238636}
+  .b-yellow{background:#3d2f1a;color:#e3b341;border:1px solid #9e6a03}
+  .b-red   {background:#3d1a1a;color:#f85149;border:1px solid #6e1a1a}
+  .b-gray  {background:#21262d;color:#8b949e;border:1px solid #30363d}
+  .b-blue  {background:#1a2a4a;color:#58a6ff;border:1px solid #1f6feb}
+
+  .wrap{max-width:1100px;margin:24px auto;padding:0 20px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .stat{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px;text-align:center}
+  .stat .n{font-size:2.2rem;font-weight:700;margin:6px 0}
+  .stat .l{font-size:.72rem;color:#8b949e;text-transform:uppercase;letter-spacing:1px}
+  .cg{color:#3fb950}.cr{color:#f85149}.cy{color:#e3b341}.cb{color:#58a6ff}
+
+  .hero{background:#161b22;border:1px solid #30363d;border-radius:14px;
+        padding:28px;margin-bottom:20px;display:flex;gap:20px;align-items:stretch}
+  .hero-left{flex:1;text-align:center;border-right:1px solid #21262d;padding-right:24px}
+  .big-num{font-size:7rem;font-weight:800;line-height:1;transition:.4s}
+  .big-lbl{font-size:.8rem;color:#8b949e;text-transform:uppercase;letter-spacing:2px;margin-top:8px}
+
+  .circ-wrap{display:flex;justify-content:center;margin:14px 0}
+  .circ{position:relative;width:120px;height:120px}
+  svg.ring{transform:rotate(-90deg)}
+  .ring-bg{fill:none;stroke:#21262d;stroke-width:10}
+  .ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .6s}
+  .circ-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+             text-align:center;font-size:1.3rem;font-weight:700}
+  .circ-sub{font-size:.65rem;color:#8b949e;display:block}
+
+  .chart-wrap{height:120px;display:flex;align-items:flex-end;gap:3px;margin-top:8px}
+  .bar{flex:1;border-radius:3px 3px 0 0;min-width:6px;transition:.3s;cursor:pointer}
+  .bar:hover{opacity:.7}
+
+  .hero-right{flex:1;display:flex;flex-direction:column;gap:12px;padding-left:8px}
+  .ai-panel{background:#0d1117;border:1px solid #1f6feb;border-radius:10px;padding:14px}
+  .ai-panel h3{font-size:.75rem;color:#58a6ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .ai-row{display:flex;justify-content:space-between;align-items:center;
+          margin-bottom:6px;font-size:.82rem}
+  .ai-row .lbl{color:#8b949e}
+
+  .arrow-up{color:#f85149}
+  .arrow-dn{color:#3fb950}
+  .arrow-st{color:#e3b341}
+
+  .risk-display{text-align:center;padding:14px;border-radius:10px;border:2px solid}
+  .risk-NONE  {background:#0d1117;border-color:#30363d}
+  .risk-LOW   {background:#1a3626;border-color:#238636}
+  .risk-MEDIUM{background:#3d2f1a;border-color:#9e6a03}
+  .risk-HIGH  {background:#3d1a1a;border-color:#6e1a1a;animation:pulse 1s infinite}
+  .risk-lbl{font-size:1.4rem;font-weight:800}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px}
+  .card h2{font-size:.78rem;color:#8b949e;text-transform:uppercase;
+           letter-spacing:1px;margin-bottom:14px}
+
+  .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  button{padding:10px 14px;border-radius:8px;border:none;cursor:pointer;
+         font-size:.82rem;font-weight:600;transition:.2s;width:100%}
+  button:hover{opacity:.8;transform:scale(1.02)}
+  .btn-r{background:#3d1a1a;color:#f85149;border:1px solid #6e1a1a}
+  .btn-g{background:#1a3626;color:#3fb950;border:1px solid #238636}
+  .btn-b{background:#1a2a4a;color:#58a6ff;border:1px solid #1f6feb}
+  .btn-y{background:#3d2f1a;color:#e3b341;border:1px solid #9e6a03}
+
+  .log{background:#0d1117;border:1px solid #21262d;border-radius:8px;
+       padding:10px;max-height:200px;overflow-y:auto;font-size:.75rem;font-family:monospace}
+  .log p{padding:4px 0;border-bottom:1px solid #161b22;color:#8b949e}
+  .log .lg{color:#3fb950}.log .ly{color:#e3b341}.log .lr{color:#f85149}
+
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th{color:#8b949e;font-weight:600;padding:8px 10px;border-bottom:1px solid #30363d;text-align:left}
+  td{padding:9px 10px;border-bottom:1px solid #1c2128}
+  tr:hover td{background:#1c2128}
+
+  footer{text-align:center;padding:20px;color:#30363d;font-size:.72rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <span style="font-size:1.4rem">🚪</span>
+  <h1>People Counter — AIoT Dashboard</h1>
+  <span class="badge b-green" id="sys-badge">ONLINE</span>
+  <span style="margin-left:auto;color:#8b949e;font-size:.78rem" id="last-upd">Đang tải...</span>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat">
+      <div class="l">Trong phòng</div>
+      <div class="n cb" id="s-hientai">—</div>
+    </div>
+    <div class="stat">
+      <div class="l">Tổng vào hôm nay</div>
+      <div class="n cg" id="s-vao">—</div>
+    </div>
+    <div class="stat">
+      <div class="l">Tổng ra hôm nay</div>
+      <div class="n cy" id="s-ra">—</div>
+    </div>
+    <div class="stat">
+      <div class="l">Sự kiện chưa xử lý</div>
+      <div class="n cr" id="s-events">—</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="big-num cb" id="big-num">0</div>
+      <div class="big-lbl">người đang trong phòng</div>
+
+      <div class="circ-wrap">
+        <div class="circ">
+          <svg class="ring" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+                    stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="circ-text">
+            <span id="pct-num" style="color:#3fb950">0%</span>
+            <span class="circ-sub">công suất</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:.7rem;color:#8b949e;margin-bottom:6px">Lịch sử 30 bản tin</div>
+      <div class="chart-wrap" id="history-chart"></div>
+    </div>
+
+    <div class="hero-right">
+      <div class="risk-display risk-NONE" id="risk-box">
+        <div class="risk-lbl" id="risk-lbl">NONE</div>
+        <div style="font-size:.8rem;color:#8b949e;margin-top:4px" id="risk-score">Score: 0</div>
+        <div style="font-size:.75rem;color:#8b949e;margin-top:6px" id="risk-reason">—</div>
+      </div>
+
+      <div class="ai-panel">
+        <h3>🤖 Kết quả AI</h3>
+        <div class="ai-row">
+          <span class="lbl">Trạng thái</span>
+          <span class="badge b-gray" id="ai-trang-thai">—</span>
+        </div>
+        <div class="ai-row">
+          <span class="lbl">Dự báo 30 phút</span>
+          <span id="ai-dubao" style="font-weight:700">—</span>
+        </div>
+        <div class="ai-row">
+          <span class="lbl">Xu hướng</span>
+          <span id="ai-xuhuong">—</span>
+        </div>
+        <div class="ai-row">
+          <span class="lbl">Hành động</span>
+          <span id="ai-action" style="font-size:.72rem;color:#8b949e">—</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:.7rem;color:#8b949e">Pin ESP32</div>
+          <div style="font-size:1.1rem;font-weight:700" id="bat">—</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:.7rem;color:#8b949e">WiFi Signal</div>
+          <div style="font-size:1.1rem;font-weight:700" id="sig">—</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:.7rem;color:#8b949e">Giới hạn</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#58a6ff" id="gioi-han">—</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:.7rem;color:#8b949e">Chế độ chặn</div>
+          <div style="font-size:.9rem;font-weight:700" id="che-do">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h2>🎮 Điều khiển thủ công</h2>
+      <div class="btn-grid" style="margin-bottom:10px">
+        <button class="btn-r" onclick="sendCmd('BLOCK_ENTRY', null)">🚫 Chặn vào</button>
+        <button class="btn-g" onclick="sendCmd('ALLOW_ENTRY', null)">✅ Cho vào</button>
+        <button class="btn-b" onclick="sendCmd('SET_LIMIT', '5')">Max: 5 người</button>
+        <button class="btn-b" onclick="sendCmd('SET_LIMIT', '10')">Max: 10 người</button>
+        <button class="btn-y" onclick="sendCmd('RESET_COUNT', null)">🔄 Reset đếm</button>
+        <button class="btn-y" onclick="sendCmd('TEST_BUZZER', null)">🔊 Test còi</button>
+      </div>
+      <button class="btn-r" style="width:100%;padding:12px"
+              onclick="sendCmd('BLOCK_ENTRY', null)">
+        🚨 KHẨN CẤP — Chặn tất cả
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>📋 Log sự kiện realtime</h2>
+      <div class="log" id="log-box">
+        <p>Đang tải...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>🚨 Danh sách sự kiện AI</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Thời gian</th>
+          <th>Thiết bị</th>
+          <th>Loại sự kiện</th>
+          <th>Mức rủi ro</th>
+          <th>Mô tả</th>
+        </tr>
+      </thead>
+      <tbody id="event-table">
+        <tr><td colspan="5" style="text-align:center;color:#30363d">Đang tải...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>People Counter AIoT — Nhóm XX | Đại học Đại Nam | Auto-refresh 3s</footer>
+
+<script>
+const DEVICE = 'people_counter_zone_A';
+let historyData = [];
+
+const riskClass = {NONE:'risk-NONE',LOW:'risk-LOW',MEDIUM:'risk-MEDIUM',HIGH:'risk-HIGH'};
+const riskBadge = {NONE:'b-gray',LOW:'b-green',MEDIUM:'b-yellow',HIGH:'b-red'};
+const ttBadge   = {NORMAL:'b-green',WARNING:'b-yellow',CRITICAL:'b-red'};
+
+function setRing(pct) {
+  const circumference = 314;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  const color = pct >= 100 ? '#f85149' : pct >= 80 ? '#e3b341' : '#3fb950';
+  document.getElementById('ring-fill').style.stroke = color;
+  document.getElementById('pct-num').textContent = pct + '%';
+  document.getElementById('pct-num').style.color  = color;
+}
+
+function drawChart(data, gioi_han) {
+  const wrap = document.getElementById('history-chart');
+  wrap.innerHTML = '';
+  if (!data || !data.length) return;
+  const max = Math.max(...data.map(d => d.so_nguoi_hien_tai), gioi_han, 1);
+  data.forEach(d => {
+    const pct = (d.so_nguoi_hien_tai / max) * 100;
+    const color = d.canh_bao_qua_tai ? '#f85149' :
+                  d.phan_tram_su_dung >= 80 ? '#e3b341' : '#3fb950';
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.cssText = `height:${Math.max(pct,3)}%;background:${color}22;border:1px solid ${color}44`;
+    bar.title = `${d.so_nguoi_hien_tai} người | ${d.timestamp?.slice(11,16)}`;
+    wrap.appendChild(bar);
+  });
+}
+
+async function fetchLatest() {
+  try {
+    const r = await fetch(`/api/devices/${DEVICE}/latest`);
+    if (!r.ok) return;
+    const d = await r.json();
+
+    const hien = d.so_nguoi_hien_tai || 0;
+    const pct  = d.phan_tram_su_dung || 0;
+    const risk = d.risk_level || 'NONE';
+
+    document.getElementById('big-num').textContent = hien;
+    document.getElementById('s-hientai').textContent = hien;
+    document.getElementById('s-vao').textContent = d.so_nguoi_vao || 0;
+    document.getElementById('s-ra').textContent  = d.so_nguoi_ra  || 0;
+    document.getElementById('bat').textContent   = (d.battery_level||0).toFixed(0)+'%';
+    document.getElementById('sig').textContent   = (d.network_signal||0)+' dBm';
+    document.getElementById('gioi-han').textContent = (d.gioi_han_phong||10)+' ng';
+    document.getElementById('che-do').textContent = d.che_do_chan ? '🟢 BẬT' : '🔴 TẮT';
+
+    setRing(pct);
+
+    const box = document.getElementById('risk-box');
+    box.className = 'risk-display ' + (riskClass[risk] || 'risk-NONE');
+    document.getElementById('risk-lbl').textContent   = risk;
+    document.getElementById('risk-score').textContent = 'Score: ' + (d.risk_score||0);
+    document.getElementById('risk-reason').textContent = (d.reason||'—').substring(0,80);
+
+    const ttEl = document.getElementById('ai-trang-thai');
+    ttEl.textContent = d.trang_thai || '—';
+    ttEl.className   = 'badge ' + (ttBadge[d.trang_thai] || 'b-gray');
+
+    const xuhuong = d.xu_huong || 'ON_DINH';
+    const arrow   = xuhuong==='TANG' ? '⬆ TĂNG' : xuhuong==='GIAM' ? '⬇ GIẢM' : '➡ ỔN ĐỊNH';
+    const aColor  = xuhuong==='TANG' ? 'arrow-up' : xuhuong==='GIAM' ? 'arrow-dn' : 'arrow-st';
+    document.getElementById('ai-dubao').textContent   = (d.du_bao_30p||0) + ' người';
+    document.getElementById('ai-xuhuong').innerHTML   = `<span class="${aColor}">${arrow}</span>`;
+    document.getElementById('ai-action').textContent  = d.recommended_action || '—';
+
+    document.getElementById('last-upd').textContent = 'Cập nhật: ' + new Date().toLocaleTimeString('vi-VN');
+    document.getElementById('sys-badge').textContent = 'ONLINE';
+    document.getElementById('sys-badge').className   = 'badge b-green';
+  } catch(e) {
+    document.getElementById('sys-badge').textContent = 'OFFLINE';
+    document.getElementById('sys-badge').className   = 'badge b-red';
+  }
+}
+
+async function fetchHistory() {
+  try {
+    const r = await fetch(`/api/devices/${DEVICE}/history?limit=30`);
+    const d = await r.json();
+    historyData = d.history || [];
+    const gioi  = historyData.length ? historyData[historyData.length-1].gioi_han_phong : 10;
+    drawChart(historyData, gioi);
+  } catch(e) {}
+}
+
+async function fetchEvents() {
+  try {
+    const r  = await fetch('/api/events?limit=15');
+    const d  = await r.json();
+    const tb = document.getElementById('event-table');
+    const lb = document.getElementById('log-box');
+
+    document.getElementById('s-events').textContent = (d.events||[]).filter(e=>!e.resolved).length;
+
+    if (!d.events || !d.events.length) {
+      tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#30363d">Chưa có sự kiện</td></tr>';
+      lb.innerHTML = '<p>Chưa có log</p>';
+      return;
+    }
+
+    const bm = {HIGH:'b-red',MEDIUM:'b-yellow',LOW:'b-green',NONE:'b-gray'};
+    tb.innerHTML = d.events.map(e => `
+      <tr>
+        <td style="color:#8b949e;font-size:.75rem">${new Date(e.created_at).toLocaleString('vi-VN')}</td>
+        <td><code style="color:#58a6ff">${e.device_id}</code></td>
+        <td>${e.event_type}</td>
+        <td><span class="badge ${bm[e.risk_level]||'b-gray'}">${e.risk_level}</span></td>
+        <td style="color:#8b949e;font-size:.75rem">${(e.description||'').substring(0,60)}</td>
+      </tr>`).join('');
+
+    const lm = {HIGH:'lr',MEDIUM:'ly',LOW:'lg'};
+    lb.innerHTML = d.events.slice(0,10).map(e=>`
+      <p class="${lm[e.risk_level]||''}">
+        [${new Date(e.created_at).toLocaleTimeString('vi-VN')}]
+        ${e.risk_level} | ${e.event_type} | ${e.device_id}
+      </p>`).join('');
+  } catch(e) {}
+}
+
+// ---- SỬA LỖI: sendCmd nhận đúng command + payload ----
+async function sendCmd(cmd, payload) {
+  const msg = {
+    BLOCK_ENTRY:  'Xác nhận chặn người vào?',
+    ALLOW_ENTRY:  'Cho phép vào lại?',
+    SET_LIMIT:    `Đặt giới hạn ${payload} người?`,
+    RESET_COUNT:  'Reset bộ đếm về 0?',
+    TEST_BUZZER:  'Test còi?',
+  };
+  if (!confirm(msg[cmd] || `Gửi lệnh ${cmd}?`)) return;
+  try {
+    const r = await fetch('/api/control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        device_id:    DEVICE,
+        command:      cmd,
+        payload:      payload,
+        triggered_by: 'MANUAL'
+      })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      alert(`✅ Lệnh '${cmd}' đã gửi! ID: ${d.command_id}\nESP32 sẽ thực thi trong ~3 giây`);
+    } else {
+      alert(`❌ Lỗi: ${d.detail}`);
+    }
+    fetchLatest(); fetchEvents();
+  } catch(e) {
+    alert('❌ Không kết nối server!');
+  }
+}
+
+function refresh() { fetchLatest(); fetchEvents(); }
+fetchLatest(); fetchHistory(); fetchEvents();
+setInterval(refresh, 3000);
+setInterval(fetchHistory, 15000);
+</script>
+</body>
+</html>
