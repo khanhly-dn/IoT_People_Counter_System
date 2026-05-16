@@ -278,6 +278,28 @@ devices (device_id PK)
 
 ---
 
+## 📷 Demo sản phẩm
+
+<p align="center">
+  <img width="700" alt="Demo Web Dashboard" src="https://github.com/khanhly-dn/IoT_People_Counter_System/blob/main/DEMO.jpg?raw=true" />
+</p>
+
+### 🖥️ Giao diện Web Dashboard
+
+<p align="center">
+  <img width="700" alt="Giao diện Web Dashboard" src="https://github.com/khanhly-dn/AIoT_People_Counter_System-DEMO/blob/main/GD.png?raw=true" />
+</p>
+
+### 📊 Dữ liệu & Biểu đồ thống kê
+
+<p align="center">
+  <img width="700" alt="Dữ liệu và biểu đồ thống kê" src="https://github.com/khanhly-dn/AIoT_People_Counter_System-DEMO/blob/main/DL.png?raw=true" />
+</p>
+
+🎬 **Video hoạt động:** *(đang cập nhật)*
+
+---
+
 ## 🚀 Hướng dẫn cài đặt
 
 ### Yêu cầu hệ thống
@@ -380,16 +402,6 @@ Invoke-RestMethod "http://localhost:8000/api/devices/people_counter_zone_A/lates
 
 ---
 
-## 📷 Demo sản phẩm
-
-<p align="center">
-  <img width="700" alt="Demo Web Dashboard" src="https://github.com/khanhly-dn/IoT_People_Counter_System/blob/main/DEMO.jpg?raw=true" />
-</p>
-
-🎬 **Video hoạt động:** *(đang cập nhật)*
-
----
-
 ## 📁 Cấu trúc thư mục
 
 ```
@@ -412,6 +424,8 @@ AIoT_People_Counter_System-DEMO/
 │
 ├── SDHD.png                       # Sơ đồ hoạt động
 ├── TB.png                         # Sơ đồ linh kiện
+├── GD.png                         # Giao diện Web Dashboard
+├── DL.png                         # Dữ liệu & biểu đồ thống kê
 └── DEMO.jpg                       # Ảnh demo sản phẩm
 ```
 
